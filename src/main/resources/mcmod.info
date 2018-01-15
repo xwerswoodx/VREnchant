@@ -1,0 +1,16 @@
+[
+{
+  "modid": "vrenchant",
+  "name": "VR Enchant",
+  "description": "Adding (very) rare enchantments to minecraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["xwerswoodx"],
+  "credits": "VR Enchant Module",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
