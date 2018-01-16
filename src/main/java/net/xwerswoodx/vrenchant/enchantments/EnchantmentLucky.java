@@ -22,12 +22,12 @@ public class EnchantmentLucky extends Enchantment {
 	
 	@Override
     public int getMinEnchantability(int enchantmentLevel) {
-        return 30 * (enchantmentLevel - 1);
+        return 10 + 30 * (enchantmentLevel - 1);
     }
 
 	@Override
     public int getMaxEnchantability(int enchantmentLevel) {
-        return super.getMinEnchantability(enchantmentLevel) + 30;
+        return super.getMinEnchantability(enchantmentLevel) + 50;
     }
 	
 	@Override

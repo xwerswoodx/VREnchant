@@ -34,9 +34,10 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentAutoJump;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentAutoRun;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentJumpBoost;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentRunBoost;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentBeheading;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentDragonSlayer;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLifeSteal;
@@ -50,8 +51,8 @@ public class EnchantmentEvent {
 	
 	private EntityEquipmentSlot[] slotsArmor = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 	private EntityEquipmentSlot[] slotsHand = new EntityEquipmentSlot[] {EntityEquipmentSlot.MAINHAND};
-	public Enchantment autoRun = new EnchantmentAutoRun(Enchantment.Rarity.VERY_RARE, slotsArmor);
-	public Enchantment autoJump = new EnchantmentAutoJump(Enchantment.Rarity.VERY_RARE, slotsArmor);
+	public Enchantment runBoost = new EnchantmentRunBoost(Enchantment.Rarity.VERY_RARE, slotsArmor);
+	public Enchantment jumpBoost = new EnchantmentJumpBoost(Enchantment.Rarity.VERY_RARE, slotsArmor);
 	public Enchantment nightVision = new EnchantmentNightVision(Enchantment.Rarity.RARE, slotsArmor);
 	public Enchantment waterBreathing = new EnchantmentWaterBreathing(Enchantment.Rarity.VERY_RARE, slotsArmor);
 	public Enchantment beheading = new EnchantmentBeheading(Enchantment.Rarity.RARE, slotsHand);
@@ -64,8 +65,8 @@ public class EnchantmentEvent {
 	@SubscribeEvent
 	public void onEnchantmentRegister(RegistryEvent.Register<Enchantment> event) {
 		IForgeRegistry<Enchantment> registry = event.getRegistry();
-		registry.register(autoRun);
-		registry.register(autoJump);
+		registry.register(runBoost);
+		registry.register(jumpBoost);
 		registry.register(nightVision);
 		registry.register(waterBreathing);
 		registry.register(beheading);
@@ -231,14 +232,14 @@ public class EnchantmentEvent {
 		if (player.getItemStackFromSlot(EntityEquipmentSlot.FEET) != null) {
 			ItemStack stack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
 			if (stack.isItemEnchanted()) {
-				int autoRunLevel = EnchantmentHelper.getEnchantmentLevel(autoRun, stack);
-				int autoJumpLevel = EnchantmentHelper.getEnchantmentLevel(autoJump, stack);
+				int runBoostLevel = EnchantmentHelper.getEnchantmentLevel(runBoost, stack);
+				int jumpBoostLevel = EnchantmentHelper.getEnchantmentLevel(jumpBoost, stack);
 				
-				if (autoRunLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, autoRunLevel - 1));
+				if (runBoostLevel > 0)
+					player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, runBoostLevel - 1));
 				
-				if (autoJumpLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, autoJumpLevel - 1));
+				if (jumpBoostLevel > 0)
+					player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, jumpBoostLevel - 1));
 			}
 		}
 		

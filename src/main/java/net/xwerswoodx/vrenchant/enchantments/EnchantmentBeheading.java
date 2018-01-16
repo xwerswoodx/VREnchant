@@ -23,12 +23,12 @@ public class EnchantmentBeheading extends Enchantment {
 	
 	@Override
     public int getMinEnchantability(int enchantmentLevel) {
-        return 15 * (enchantmentLevel - 1);
+        return 10 + 25 * (enchantmentLevel - 1);
     }
 
 	@Override
     public int getMaxEnchantability(int enchantmentLevel) {
-        return super.getMinEnchantability(enchantmentLevel) + 30;
+        return super.getMinEnchantability(enchantmentLevel) + 50;
     }
 	
 	@Override
