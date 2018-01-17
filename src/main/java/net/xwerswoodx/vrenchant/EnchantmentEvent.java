@@ -33,7 +33,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentArmorPenetration;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowArmorPenetration;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentBeheading;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowDragonSlayer;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLifeSteal;
@@ -59,7 +58,6 @@ public class EnchantmentEvent {
 	public Enchantment lifeSteal = new EnchantmentLifeSteal(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment arrowDragonSlayer = new EnchantmentArrowDragonSlayer(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment armorPenetration = new EnchantmentArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
-	public Enchantment arrowArmorPenetration = new EnchantmentArrowArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment poisonAspect = new EnchantmentPoisonAspect(Enchantment.Rarity.RARE, slotsHand);
 	
 	@SubscribeEvent
@@ -76,7 +74,6 @@ public class EnchantmentEvent {
 		registry.register(lifeSteal);
 		registry.register(arrowDragonSlayer);
 		registry.register(armorPenetration);
-		registry.register(arrowArmorPenetration);
 		registry.register(poisonAspect);
 	}
 	
@@ -281,7 +278,7 @@ public class EnchantmentEvent {
 		 */
 		if (event.getSource().getTrueSource() instanceof EntityPlayer) {
 			ItemStack weapon = ((EntityPlayer)event.getSource().getTrueSource()).getHeldItemMainhand();
-			if ((EnchantmentHelper.getEnchantmentLevel(armorPenetration, weapon) > 0) || (EnchantmentHelper.getEnchantmentLevel(arrowArmorPenetration, weapon) > 0))
+			if (EnchantmentHelper.getEnchantmentLevel(armorPenetration, weapon) > 0)
 				event.getSource().setDamageBypassesArmor();
 			
 			if ((event.getEntityLiving() instanceof EntityDragon) && (EnchantmentHelper.getEnchantmentLevel(arrowDragonSlayer, weapon) > 0))
