@@ -2,19 +2,20 @@ package net.xwerswoodx.vrenchant.enchantments;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnumEnchantmentType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.chunk.Chunk.EnumCreateEntityType;
 
-public class EnchantmentSilkSpawners extends Enchantment {
+public class EnchantmentArmorPenetration extends Enchantment {
 
 	//TestEnchantments(Rarity.UNCOMMON, EnumEnchantmentType.DIGGER, new EntityEquipmentSlot[]{EntityEquipmentSlot.MAINHAND, EntityEquipmentSlot.OFFHAND}, "smelting");
-	public EnchantmentSilkSpawners(Enchantment.Rarity rarity, EntityEquipmentSlot... slots) {
-		super(rarity, EnumEnchantmentType.DIGGER, slots);
-		this.setRegistryName("silkSpawner");
+	public EnchantmentArmorPenetration(Enchantment.Rarity rarity, EntityEquipmentSlot... slots) {
+		super(rarity, EnumEnchantmentType.WEAPON, slots);
+		this.setRegistryName("armorPenetration");
 	}
 	
 	@Override
@@ -34,7 +35,7 @@ public class EnchantmentSilkSpawners extends Enchantment {
 	
 	@Override
 	public String getName() {
-		return "Silk Spawner";
+		return "Armor Penetration";
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class EnchantmentSilkSpawners extends Enchantment {
 
 	@Override
     public boolean canApplyTogether(Enchantment ench) {
-        return super.canApplyTogether(ench) && ench != Enchantments.FORTUNE && ench != Enchantments.SILK_TOUCH;
+        return super.canApplyTogether(ench);
     }
 	
 	@Override
@@ -54,6 +55,6 @@ public class EnchantmentSilkSpawners extends Enchantment {
 	
 	@Override
     public boolean canApply(ItemStack stack) {
-        return stack.getItem() instanceof ItemPickaxe ? true : false;
+        return stack.getItem() instanceof ItemAxe ? true : super.canApply(stack);
     }
 }

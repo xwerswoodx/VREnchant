@@ -2,47 +2,44 @@ package net.xwerswoodx.vrenchant;
 
 import java.util.Random;
 
-import javax.swing.text.html.HTML.Tag;
-
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentJumpBoost;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentRunBoost;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantment.Rarity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.init.PotionTypes;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentJumpBoost;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentRunBoost;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentArmorPenetration;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowArmorPenetration;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentBeheading;
-import net.xwerswoodx.vrenchant.enchantments.EnchantmentDragonSlayer;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowDragonSlayer;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLifeSteal;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLucky;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentNightVision;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentPoisonAspect;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentReBirth;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentSilkSpawners;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentWaterBreathing;
@@ -60,7 +57,10 @@ public class EnchantmentEvent {
 	public Enchantment reBirth = new EnchantmentReBirth(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment silkSpawner = new EnchantmentSilkSpawners(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment lifeSteal = new EnchantmentLifeSteal(Enchantment.Rarity.VERY_RARE, slotsHand);
-	public Enchantment dragonSlayer = new EnchantmentDragonSlayer(Enchantment.Rarity.VERY_RARE, slotsHand);
+	public Enchantment arrowDragonSlayer = new EnchantmentArrowDragonSlayer(Enchantment.Rarity.VERY_RARE, slotsHand);
+	public Enchantment armorPenetration = new EnchantmentArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
+	public Enchantment arrowArmorPenetration = new EnchantmentArrowArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
+	public Enchantment poisonAspect = new EnchantmentPoisonAspect(Enchantment.Rarity.RARE, slotsHand);
 	
 	@SubscribeEvent
 	public void onEnchantmentRegister(RegistryEvent.Register<Enchantment> event) {
@@ -74,7 +74,10 @@ public class EnchantmentEvent {
 		registry.register(reBirth);
 		registry.register(silkSpawner);
 		registry.register(lifeSteal);
-		registry.register(dragonSlayer);
+		registry.register(arrowDragonSlayer);
+		registry.register(armorPenetration);
+		registry.register(arrowArmorPenetration);
+		registry.register(poisonAspect);
 	}
 	
     @SubscribeEvent
@@ -154,8 +157,9 @@ public class EnchantmentEvent {
     				int reBirthLevel = EnchantmentHelper.getEnchantmentLevel(reBirth, stack);
     				int luckyLevel = EnchantmentHelper.getEnchantmentLevel(lucky, stack);
     				
-    				if (beheadingLevel > 0) {
-    					int random = rand.nextInt(beheadingLevel);
+    				if ((beheadingLevel > 0) && HeadEnums.getChance(entity, beheadingLevel) > 0) {
+//    					int random = rand.nextInt(beheadingLevel);
+    					int random = rand.nextInt(HeadEnums.getChance(entity, beheadingLevel));
     					if (random == 0) {
     						/*
     						int type = 10;
@@ -266,5 +270,27 @@ public class EnchantmentEvent {
 		else if (level == 3)
 			return 45;
 		return 100;
+	}
+	
+	@SubscribeEvent
+	public void onEntityHurt(LivingHurtEvent event) {
+		/*
+		 * event.getEntityLiving() = target;
+		 * event.getSource().getTrueSource() = attacker;
+		 * event.getAmount() = (float) amount of damage;
+		 */
+		if (event.getSource().getTrueSource() instanceof EntityPlayer) {
+			ItemStack weapon = ((EntityPlayer)event.getSource().getTrueSource()).getHeldItemMainhand();
+			if ((EnchantmentHelper.getEnchantmentLevel(armorPenetration, weapon) > 0) || (EnchantmentHelper.getEnchantmentLevel(arrowArmorPenetration, weapon) > 0))
+				event.getSource().setDamageBypassesArmor();
+			
+			if ((event.getEntityLiving() instanceof EntityDragon) && (EnchantmentHelper.getEnchantmentLevel(arrowDragonSlayer, weapon) > 0))
+				event.setAmount(event.getAmount() + event.getAmount());
+			
+			if (EnchantmentHelper.getEnchantmentLevel(poisonAspect, weapon) > 0) {
+				int level = EnchantmentHelper.getEnchantmentLevel(poisonAspect, weapon);
+				event.getEntityLiving().addPotionEffect(new PotionEffect(Potion.getPotionById(19), level * 20, level));
+			}
+		}
 	}
 }

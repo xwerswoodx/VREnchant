@@ -5,36 +5,35 @@ import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.chunk.Chunk.EnumCreateEntityType;
 
-public class EnchantmentSilkSpawners extends Enchantment {
+public class EnchantmentPoisonAspect extends Enchantment {
 
 	//TestEnchantments(Rarity.UNCOMMON, EnumEnchantmentType.DIGGER, new EntityEquipmentSlot[]{EntityEquipmentSlot.MAINHAND, EntityEquipmentSlot.OFFHAND}, "smelting");
-	public EnchantmentSilkSpawners(Enchantment.Rarity rarity, EntityEquipmentSlot... slots) {
-		super(rarity, EnumEnchantmentType.DIGGER, slots);
-		this.setRegistryName("silkSpawner");
+	public EnchantmentPoisonAspect(Enchantment.Rarity rarity, EntityEquipmentSlot... slots) {
+		super(rarity, EnumEnchantmentType.WEAPON, slots);
+		this.setRegistryName("poisonAspect");
 	}
 	
 	@Override
 	public int getMaxLevel() {
-		return 1;
+		return 3;
 	}
 	
 	@Override
     public int getMinEnchantability(int enchantmentLevel) {
-        return 30;
+        return 15 + 25 * (enchantmentLevel - 1);
     }
 
 	@Override
     public int getMaxEnchantability(int enchantmentLevel) {
-        return super.getMinEnchantability(enchantmentLevel) + 50;
+        return super.getMinEnchantability(enchantmentLevel) + 55;
     }
 	
 	@Override
 	public String getName() {
-		return "Silk Spawner";
+		return "Poison Aspect";
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class EnchantmentSilkSpawners extends Enchantment {
 
 	@Override
     public boolean canApplyTogether(Enchantment ench) {
-        return super.canApplyTogether(ench) && ench != Enchantments.FORTUNE && ench != Enchantments.SILK_TOUCH;
+        return super.canApplyTogether(ench);
     }
 	
 	@Override
@@ -54,6 +53,6 @@ public class EnchantmentSilkSpawners extends Enchantment {
 	
 	@Override
     public boolean canApply(ItemStack stack) {
-        return stack.getItem() instanceof ItemPickaxe ? true : false;
+        return super.canApply(stack);
     }
 }

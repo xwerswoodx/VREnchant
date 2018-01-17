@@ -15,52 +15,65 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.text.TextFormatting;
 
 public enum HeadEnums {
-	blaze,
-	cavespider("Cave Spider", "MHF_CaveSpider"),
-	chicken,
-	cow,
-	elderguardian("Elder Guardian", "ElderGuardian"),
-	enderman,
-	endermite,
-	evoker,
-	ghast,
-	guardian,
-	irongolem("Iron Golem", "MHF_Golem"),
-	magmacube("Magma Cube", "MHF_LavaSlime"),
-	mooshroom("Mooshroom", "MHF_MushroomCow"),
-	ocelot,
-	parrot,
-	pig,
-	rabbit,	
-	sheep,
-	shulker,
-	silverfish,
-	slime,
-	snowgolem("Snow Golem", "SnowGolem"),
-	spider,
-	squid,
-	stray,
-	vex,
-	villager,
-	witch,
-	wither,
-	wolf,
-	zombiepigman("Zombie Pigman", "MHF_PigZombie");
+	blaze(3, new int[] {120, 100, 80}),
+	cavespider(3, new int[] {120, 100, 80}, "Cave Spider", "MHF_CaveSpider"),
+	chicken(3, new int[] {100, 80, 60}),
+	creeper(4, new int[] {80, 60, 40}),
+	cow(3, new int[] {100, 80, 60}),
+	elderguardian(3, new int[] {6, 4, 2}, "Elder Guardian", "ElderGuardian"),
+	enderman(3, new int[] {70, 50, 30}),
+	endermite(3, new int[] {50, 40, 30}),
+	evoker(3, new int[] {50, 40, 30}),
+	ghast(3, new int[] {30, 20, 10}),
+	guardian(3, new int[] {80, 60, 40}),
+	irongolem(3, new int[] {120, 100, 80}, "Iron Golem", "MHF_Golem"),
+	magmacube(3, new int[] {80, 60, 40}, "Magma Cube", "MHF_LavaSlime"),
+	mooshroom(3, new int[] {120, 100, 80}, "Mooshroom", "MHF_MushroomCow"),
+	ocelot(3, new int[] {100, 80, 60}),
+	parrot(3, new int[] {120, 100, 80}),
+	pig(3, new int[] {120, 100, 80}),
+	player(3, new int[] {30, 20, 10}),
+	rabbit(3, new int[] {100, 80, 60}),
+	sheep(3, new int[] {120, 100, 80}),
+	shulker(3, new int[] {80, 60, 40}),
+	skeleton(0, new int[] {80, 60, 40}),
+	silverfish(3, new int[] {40, 30, 20}),
+	slime(3, new int[] {150, 125, 100}),
+	snowgolem(3, new int[] {120, 100, 80}, "Snow Golem", "SnowGolem"),
+	spider(3, new int[] {120, 100, 80}),
+	squid(3, new int[] {120, 100, 80}),
+	stray(3, new int[] {80, 60, 40}),
+	vex(3, new int[] {80, 60, 40}),
+	villager(3, new int[] {140, 120, 100}),
+	witch(3, new int[] {80, 60, 40}),
+	wither(3, new int[] {30, 20, 10}),
+	witherskeleton(1, new int[] {100, 90, 80}),
+	wolf(3, new int[] {120, 100, 80}),
+	zombie(2, new int[] {120, 100, 80}),
+	zombiepigman(3, new int[] {80, 60, 40}, "Zombie Pigman", "MHF_PigZombie");
 	
+	private int type;
+	private int[] chance = new int[3];
 	private String nbt;
 	private String name;
 	
-	HeadEnums(String name, String nbt) {
+	HeadEnums(int type, int[] chance, String name, String nbt) {
+		this.type = type;
+		this.chance = chance;
 		this.name = name;
 		this.nbt = nbt;
 	}
 	
-	HeadEnums(String name) {
+	HeadEnums(int type, int[] chance, String name) {
+		this.type = type;
+		this.chance = chance;
 		this.name = "null";
 		this.nbt = "MHF";
 	}
 	
-	HeadEnums() {
+	HeadEnums(int type, int[] chance) {
+		this.type = type;
+		this.chance = chance;
 		this.name = "null";
 		this.nbt = "MHF";
 	}
@@ -95,6 +108,7 @@ public enum HeadEnums {
 		return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase() + " Skull";
 	}
 	
+	/*
 	public static ItemStack getItem(Entity entity) {
 		int type = -1;
 		String name = entity.getName().toLowerCase().replace(" ", "");
@@ -124,5 +138,45 @@ public enum HeadEnums {
 			return skull;
 		}
 		return new ItemStack(Items.AIR);
+	}
+	*/
+	
+	public static ItemStack getItem(Entity entity) {
+		ItemStack skull = new ItemStack(Items.AIR);
+		String name = entity.getName().toLowerCase().replace(" ", "");
+		int type = -1;
+		
+		if (entity instanceof EntityPlayer) {
+			type = HeadEnums.player.type;
+		} else if (hasHead(name)) {
+			for (HeadEnums head : HeadEnums.values()) {
+				if (head.toString().equalsIgnoreCase(name))
+					type = head.type;
+			}
+		}
+		
+		
+		if (type >= 0) {
+			skull = new ItemStack(Items.SKULL, 1, type);
+			NBTTagCompound tag = skull.hasTagCompound() ? skull.getTagCompound() : new NBTTagCompound();
+			tag.setTag("SkullOwner", new NBTTagString(name));
+			skull.setTagCompound(tag);
+			if ((type == 3) && (!(entity instanceof EntityPlayer)))
+				skull.setStackDisplayName(TextFormatting.RESET + getName(entity));
+		}
+		
+		return skull;
+	}
+	
+	public static int getChance(Entity entity, int level) {
+		String name = entity.getName().toLowerCase().replace(" ", "");
+		if (entity instanceof EntityPlayer)
+			return HeadEnums.player.chance[level - 1];
+		
+		for (HeadEnums head : HeadEnums.values()) {
+			if (head.toString().equalsIgnoreCase(name))
+				return head.chance[level -1];
+		}
+		return 0;
 	}
 }
