@@ -1,5 +1,6 @@
 package net.xwerswoodx.vrenchant;
 
+import java.util.List;
 import java.util.Random;
 
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentJumpBoost;
@@ -19,6 +20,8 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
+import net.minecraft.init.PotionTypes;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
@@ -31,11 +34,13 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
@@ -49,6 +54,7 @@ import net.xwerswoodx.vrenchant.enchantments.EnchantmentFarming;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowDragonSlayer;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLifeSteal;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLucky;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentNewbiefied;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentNightVision;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentPoisonAspect;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentReBirth;
@@ -72,6 +78,7 @@ public class EnchantmentEvent {
 	public Enchantment armorPenetration = new EnchantmentArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment poisonAspect = new EnchantmentPoisonAspect(Enchantment.Rarity.RARE, slotsHand);
 	public Enchantment farming = new EnchantmentFarming(Enchantment.Rarity.RARE, slotsHand);
+	public Enchantment newbiefied = new EnchantmentNewbiefied(Enchantment.Rarity.VERY_RARE, slotsHand);
 	
 	@SubscribeEvent
 	public void onEnchantmentRegister(RegistryEvent.Register<Enchantment> event) {
@@ -89,6 +96,7 @@ public class EnchantmentEvent {
 		registry.register(armorPenetration);
 		registry.register(poisonAspect);
 		registry.register(farming);
+		registry.register(newbiefied);
 	}
 	
     @SubscribeEvent
@@ -276,6 +284,29 @@ public class EnchantmentEvent {
 	    	}
     	}
     }
+    
+    @SubscribeEvent
+    public void onPlayerDead(LivingDropsEvent event) {
+		if (event.getEntity() instanceof EntityPlayer) {
+			List<EntityItem> items = event.getDrops();
+			System.out.println("Start: " + items.toString());
+			EntityPlayer player = (EntityPlayer)event.getEntity();
+			
+			for (int i = 0; i < items.size(); i++) {
+				ItemStack item = items.get(i).getItem();
+				if (EnchantmentHelper.getEnchantmentLevel(newbiefied, item) > 0) {
+    				player.inventory.addItemStackToInventory(item);
+    				event.getDrops().remove(i);
+    				i--;
+    			}
+    		}
+    	}
+    }
+    
+    @SubscribeEvent
+    public void onPlayerRespawn(PlayerEvent.Clone event) {
+    	event.getEntityPlayer().inventory.copyInventory(event.getOriginal().inventory);
+    }
 	
 	/*
 	@SubscribeEvent
@@ -286,7 +317,7 @@ public class EnchantmentEvent {
 				ItemStack stack = event.getTo();
 				int autoRunLevel = EnchantmentHelper.getEnchantmentLevel(autoRun, stack);
 				if (autoRunLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(1)));
+					player.addPotionEffect(new PotionEffect(MobEffects.SPEED));
 			}
 		}
 	}
@@ -302,10 +333,10 @@ public class EnchantmentEvent {
 				int jumpBoostLevel = EnchantmentHelper.getEnchantmentLevel(jumpBoost, stack);
 				
 				if (runBoostLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, runBoostLevel - 1));
+					player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, runBoostLevel - 1));
 				
 				if (jumpBoostLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, jumpBoostLevel - 1));
+					player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 5, jumpBoostLevel - 1));
 			}
 		}
 		
@@ -316,10 +347,10 @@ public class EnchantmentEvent {
 				int waterBreathingLevel = EnchantmentHelper.getEnchantmentLevel(waterBreathing, stack);
 				
 				if (nightVisionLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 5, 0));
+					player.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, 5, 0));
 				
 				if (waterBreathingLevel > 0)
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(13), 5, 0));	
+					player.addPotionEffect(new PotionEffect(MobEffects.WATER_BREATHING, 5, 0));	
 			}
 		}
 	}
@@ -351,7 +382,7 @@ public class EnchantmentEvent {
 			
 			if (EnchantmentHelper.getEnchantmentLevel(poisonAspect, weapon) > 0) {
 				int level = EnchantmentHelper.getEnchantmentLevel(poisonAspect, weapon);
-				event.getEntityLiving().addPotionEffect(new PotionEffect(Potion.getPotionById(19), level * 20, level));
+				event.getEntityLiving().addPotionEffect(new PotionEffect(MobEffects.POISON, level * 20, level));
 			}
 		}
 	}

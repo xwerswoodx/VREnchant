@@ -2,7 +2,6 @@ package net.xwerswoodx.vrenchant;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -60,4 +59,17 @@ public class VREnchant
     	//return new ResourceLocation(type);
     }
     
+    /*
+    public boolean checkFreeSlot(EntityPlayer player, ItemStack stack) {
+    	if (player.inventory.getFirstEmptyStack() >= 0)
+    		return true;
+    	else if (stack.getMaxStackSize() > 1) {
+    		for (int slot = 0; slot < player.inventory.getSizeInventory(); slot++) {
+    			if (player.inventory.getStackInSlot(slot).getItem() == stack.getItem() && player.inventory.getStackInSlot(slot).getMetadata() == stack.getMetadata() && player.inventory.getStackInSlot(slot).getCount() + stack.getCount() <= stack.getMaxStackSize())
+    				return true;
+    		}
+    	}
+    	return false;
+    }
+    */
 }
