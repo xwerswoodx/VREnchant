@@ -55,4 +55,9 @@ public class EnchantmentPoisonAspect extends Enchantment {
     public boolean canApply(ItemStack stack) {
         return super.canApply(stack);
     }
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return super.canApplyAtEnchantingTable(stack);
+    }
 }

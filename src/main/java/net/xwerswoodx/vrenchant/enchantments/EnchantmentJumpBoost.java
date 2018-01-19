@@ -50,4 +50,9 @@ public class EnchantmentJumpBoost extends Enchantment {
     public boolean isTreasureEnchantment() {
 		return false;
     }
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return super.canApplyAtEnchantingTable(stack);
+    }
 }

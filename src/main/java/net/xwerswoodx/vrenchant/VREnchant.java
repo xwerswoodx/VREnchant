@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Config;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -20,6 +21,11 @@ public class VREnchant
     
     public static boolean rootsMod = false;
     public static boolean babyMobsMod = false;
+    
+    @Config.Comment("Test Comment")
+    @Config.Name("Test")
+    public static boolean test = false;
+    
     
     @EventHandler
     public void onPreInitialization(FMLPreInitializationEvent event) {

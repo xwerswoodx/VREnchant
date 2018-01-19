@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.chunk.Chunk.EnumCreateEntityType;
 
@@ -61,5 +62,10 @@ public class EnchantmentLifeSteal extends Enchantment {
 	@Override
     public void onEntityDamaged(EntityLivingBase player, Entity entity, int level) {
 		player.heal((float)0.5 * level);
+    }
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return stack.getItem() instanceof ItemAxe ? true : super.canApplyAtEnchantingTable(stack);
     }
 }

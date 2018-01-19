@@ -4,6 +4,11 @@ import java.util.Random;
 
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentJumpBoost;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentRunBoost;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
+import net.minecraft.block.BlockDirt;
+import net.minecraft.block.BlockGrass;
+import net.minecraft.block.IGrowable;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantment.Rarity;
@@ -15,7 +20,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -24,16 +31,21 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentArmorPenetration;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentBeheading;
+import net.xwerswoodx.vrenchant.enchantments.EnchantmentFarming;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentArrowDragonSlayer;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLifeSteal;
 import net.xwerswoodx.vrenchant.enchantments.EnchantmentLucky;
@@ -59,6 +71,7 @@ public class EnchantmentEvent {
 	public Enchantment arrowDragonSlayer = new EnchantmentArrowDragonSlayer(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment armorPenetration = new EnchantmentArmorPenetration(Enchantment.Rarity.VERY_RARE, slotsHand);
 	public Enchantment poisonAspect = new EnchantmentPoisonAspect(Enchantment.Rarity.RARE, slotsHand);
+	public Enchantment farming = new EnchantmentFarming(Enchantment.Rarity.RARE, slotsHand);
 	
 	@SubscribeEvent
 	public void onEnchantmentRegister(RegistryEvent.Register<Enchantment> event) {
@@ -75,6 +88,7 @@ public class EnchantmentEvent {
 		registry.register(arrowDragonSlayer);
 		registry.register(armorPenetration);
 		registry.register(poisonAspect);
+		registry.register(farming);
 	}
 	
     @SubscribeEvent
@@ -110,10 +124,61 @@ public class EnchantmentEvent {
 			        	}
 			        }
 			        */
+//			        event.getState().getBlock().getDrops(event.getWorld(), event.getPos(), event.getState(), 0).add(egg);
 			        egg.setStackDisplayName(TextFormatting.RESET + "Monster Spawner [" + name + "]");
-			       	event.getPlayer().dropItem(egg, true);
+//			       	event.getPlayer().dropItem(egg, true);
+    				event.getWorld().spawnEntity(new EntityItem(event.getWorld(), event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), egg));
 	    		}
+//		        System.out.println(event.getState().getPropertyKeys().toString() + " -- " + event.getState().getProperties().toString());
 		   	}
+    	}
+    }
+    
+    @SubscribeEvent
+    public void onCropBreak(BreakEvent event) {
+    	if (event.getState().getBlock() instanceof BlockCrops) {
+    		if ((event.getPlayer().getHeldItemMainhand() != null) && (event.getPlayer().getHeldItemMainhand().getItem() instanceof ItemHoe)) {
+	    		BlockCrops crop = (BlockCrops) event.getState().getBlock();
+	    		if (crop.isMaxAge(event.getState())) {
+	    			Random random = new Random();
+	    			Item drop = crop.getItemDropped(event.getState(), random, 0);
+	    			ItemStack base = crop.getItem(event.getWorld(), event.getPos(), event.getState());
+	    			int farmingLevel = EnchantmentHelper.getEnchantmentLevel(farming, event.getPlayer().getHeldItemMainhand());
+	    			
+	    			if (farmingLevel > 0) {
+	    				int amount = random.nextInt(farmingLevel) + 1;
+	    				ItemStack stack = new ItemStack(drop, amount);
+	    				event.getWorld().spawnEntity(new EntityItem(event.getWorld(), event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), stack));
+
+	    				amount = random.nextInt(farmingLevel) + 1;
+	    				stack = new ItemStack(base.getItem(), amount);
+	    				event.getWorld().spawnEntity(new EntityItem(event.getWorld(), event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), stack));
+	    			}
+	    		}
+	    	}
+		}    	
+    }
+    
+    @SubscribeEvent
+    public void onHoeRightClick(PlayerInteractEvent event) {
+    	if ((event.getItemStack().getItem() instanceof ItemHoe) && (EnchantmentHelper.getEnchantmentLevel(farming, event.getItemStack()) > 0)) {
+        	int moreL = event.getItemStack().getItemDamage();
+//       	int moreH = event.getItemStack().getMaxDamage();
+        	/*
+        	if (moreL < moreH) {
+        		event.getItemStack().setItemDamage(moreL + 1);
+        	}
+        	*/
+        	Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
+        	if ((block instanceof BlockGrass) || (block instanceof BlockDirt)) {
+        		if (moreL > 0) {
+        			int min = EnchantmentHelper.getEnchantmentLevel(farming, event.getItemStack());
+        			int max = moreL;
+        			min = Math.min(min, max);
+        			event.getItemStack().setItemDamage(moreL - min);
+        		}
+//            	System.out.println(String.valueOf(moreL) + " " + String.valueOf(moreH) + " " + event.getWorld().getBlockState(event.getPos()).getBlock().getUnlocalizedName());        		
+        	}
     	}
     }
     
@@ -289,5 +354,11 @@ public class EnchantmentEvent {
 				event.getEntityLiving().addPotionEffect(new PotionEffect(Potion.getPotionById(19), level * 20, level));
 			}
 		}
+	}
+	
+	@SubscribeEvent
+	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+		if (event.getModID().equalsIgnoreCase(VREnchant.MODID))
+			ConfigManager.sync(VREnchant.MODID, Config.Type.INSTANCE);
 	}
 }

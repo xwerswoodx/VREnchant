@@ -55,4 +55,9 @@ public class EnchantmentReBirth extends Enchantment {
     public boolean canApply(ItemStack stack) {
         return stack.getItem() instanceof ItemAxe ? true : super.canApply(stack);
     }
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return stack.getItem() instanceof ItemAxe ? true : super.canApplyAtEnchantingTable(stack);
+    }
 }

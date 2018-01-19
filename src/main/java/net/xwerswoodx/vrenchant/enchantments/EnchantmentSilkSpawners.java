@@ -56,4 +56,9 @@ public class EnchantmentSilkSpawners extends Enchantment {
     public boolean canApply(ItemStack stack) {
         return stack.getItem() instanceof ItemPickaxe ? true : false;
     }
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return stack.getItem() instanceof ItemPickaxe ? true : false; //super.canApplyAtEnchantingTable(stack);
+    }
 }

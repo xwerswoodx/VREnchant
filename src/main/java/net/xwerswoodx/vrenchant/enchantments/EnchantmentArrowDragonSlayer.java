@@ -72,4 +72,9 @@ public class EnchantmentArrowDragonSlayer extends Enchantment {
         }
     }
     */
+	
+	@Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack) {
+		return super.canApplyAtEnchantingTable(stack);
+    }
 }
